@@ -95,6 +95,83 @@ void MarcarTareaComoRealizada(Nodo **pendientes, Nodo **realizadas, int id)
     printf("Tarea %d marcada como realizada.\n", id);
 }
 
+int esNumero(char *str)
+{
+    for (int i = 0; str[i] != '\0'; i++)
+    {
+        if (!isdigit(str[i]))
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+void ConsultarTarea(Nodo *pendientes, Nodo *realizadas)
+{
+    char palabraID[50];
+    printf("Ingrese ID o palabra clave para buscar: ");
+    gets(palabraID);
+    fflush(stdin);
+
+    Nodo *temp = pendientes;
+
+    if (esNumero(palabraID))
+    {
+        int id = atoi(palabraID);
+        while (temp != NULL)
+        {
+            if (temp->T.TareaID == id)
+            {
+                printf("Tarea Pendiente - ID: %d | Descripcion: %s | Duracion: %d\n", temp->T.TareaID, temp->T.Descripcion, temp->T.Duracion);
+                return;
+            }
+            temp = temp->Siguiente;
+        }
+    }
+    else
+    {
+        while (temp != NULL)
+        {
+            if (strstr(temp->T.Descripcion, palabraID) != NULL)
+            {
+                printf("Tarea Pendiente - ID: %d | Descripcion: %s | Duracion: %d\n", temp->T.TareaID, temp->T.Descripcion, temp->T.Duracion);
+                return;
+            }
+            temp = temp->Siguiente;
+        }
+    }
+
+    temp = realizadas;
+    if (esNumero(palabraID))
+    {
+        int id = atoi(palabraID);
+        while (temp != NULL)
+        {
+            if (temp->T.TareaID == id)
+            {
+                printf("Tarea Realizada - ID: %d | Descripcion: %s | Duracion: %d\n", temp->T.TareaID, temp->T.Descripcion, temp->T.Duracion);
+                return;
+            }
+            temp = temp->Siguiente;
+        }
+    }
+    else
+    {
+        while (temp != NULL)
+        {
+            if (strstr(temp->T.Descripcion, palabraID) != NULL)
+            {
+                printf("Tarea Realizada - ID: %d | Descripcion: %s | Duracion: %d\n", temp->T.TareaID, temp->T.Descripcion, temp->T.Duracion);
+                return;
+            }
+            temp = temp->Siguiente;
+        }
+    }
+
+    printf("Tarea no encontrada.\n");
+}
+
 float CostoTotalDeUnProducto(Producto p)
 {
     return p.Cantidad * p.PrecioUnitario;
@@ -110,6 +187,7 @@ int main()
     float totalBebidas = 0;
 
     srand(time(NULL));
+
     int idActual = 1000;
     Nodo *pendientes = crearListaVacia();
     Nodo *realizadas = crearListaVacia();
@@ -122,6 +200,7 @@ int main()
         printf("2. Ver tareas pendientes\n");
         printf("3. Ver tareas realizadas\n");
         printf("4. Marcar tarea como realizada\n");
+        printf("5. Consultar tarea por ID o palabra clave\n");
         printf("0. Salir\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
@@ -130,24 +209,27 @@ int main()
         switch (opcion)
         {
         case 1:
-            AgregarTarea(&pendientes, &idActual); // Agregar tarea
+            AgregarTarea(&pendientes, &idActual); 
             break;
         case 2:
             printf("Tareas pendientes:\n");
-            MostrarLista(pendientes); // Mostrar pendientes
+            MostrarLista(pendientes); 
             break;
         case 3:
             printf("Tareas realizadas:\n");
-            MostrarLista(realizadas); // Mostrar realizadas
+            MostrarLista(realizadas); 
             break;
         case 4:
         {
             int id;
             printf("Ingrese el ID de la tarea a marcar como realizada: ");
             scanf("%d", &id);
-            MarcarTareaComoRealizada(&pendientes, &realizadas, id); // Transferir tarea
+            MarcarTareaComoRealizada(&pendientes, &realizadas, id); 
             break;
         }
+        case 5:
+            ConsultarTarea(pendientes, realizadas); 
+            break;
         case 0:
             printf("Saliendo...\n");
             break;
@@ -157,7 +239,7 @@ int main()
         }
     } while (opcion != 0);
 
-    // Liberar memoria
+    
     Nodo *aux;
     while (pendientes != NULL)
     {
