@@ -39,22 +39,31 @@ Nodo *crearListaVacia()
     return NULL;
 }
 
-
 void AgregarTarea(Nodo **lista, int *idActual)
 {
     Nodo *nuevo = (Nodo *)malloc(sizeof(Nodo));
 
-    nuevo->T.TareaID = (*idActual)++; 
+    nuevo->T.TareaID = (*idActual)++;
     nuevo->T.Descripcion = (char *)malloc(50 * sizeof(char));
 
     printf("Ingrese la descripcion de la tarea\n");
+    gets(nuevo->T.Descripcion);
     fflush(stdin);
-    gets(nuevo->T.Descripcion); 
 
-    nuevo->T.Duracion = 10 + rand() % 91; 
+    nuevo->T.Duracion = 10 + rand() % 91;
     nuevo->Siguiente = *lista;
     *lista = nuevo;
 }
+
+void MostrarLista(Nodo *lista)
+{
+    while (lista)
+    {
+        printf("ID: %d | Duracion: %d | Desc: %s\n", lista->T.TareaID, lista->T.Duracion, lista->T.Descripcion);
+        lista = lista->Siguiente;
+    }
+}
+
 float CostoTotalDeUnProducto(Producto p)
 {
     return p.Cantidad * p.PrecioUnitario;
@@ -70,18 +79,40 @@ int main()
     float totalBebidas = 0;
 
     srand(time(NULL));
-
     int idActual = 1000;
     Nodo *pendientes = crearListaVacia();
+    int opcion;
 
-    char respuesta;
     do
     {
-        AgregarTarea(&pendientes, &idActual);
-        printf("Desea agregar una nueva tarea? (s/n): ");
-        scanf(" %c", &respuesta);
-    } while (respuesta == 's' || respuesta == 'S');
+        printf("\nMenu:\n");
+        printf("1. Agregar tarea\n");
+        printf("0. Salir\n");
+        printf("Ingrese una opcion: ");
+        scanf("%d", &opcion);
 
+        switch (opcion)
+        {
+        case 1:
+            AgregarTarea(&pendientes, &idActual);
+            break;
+        case 0:
+            printf("Saliendo...\n");
+            break;
+        default:
+            printf("Opción no válida.\n");
+            break;
+        }
+    } while (opcion != 0);
+
+    Nodo *aux;
+    while (pendientes != NULL)
+    {
+        aux = pendientes;
+        pendientes = pendientes->Siguiente;
+        free(aux->T.Descripcion);
+        free(aux);
+    }
 
     printf("Ingrese la cantidad de clientes\n");
     scanf("%d", &cantClientes);
