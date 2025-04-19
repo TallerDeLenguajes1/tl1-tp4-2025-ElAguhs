@@ -64,6 +64,37 @@ void MostrarLista(Nodo *lista)
     }
 }
 
+void MarcarTareaComoRealizada(Nodo **pendientes, Nodo **realizadas, int id)
+{
+    Nodo *actual = *pendientes, *anterior = NULL;
+
+    while (actual != NULL && actual->T.TareaID != id)
+    {
+        anterior = actual;
+        actual = actual->Siguiente;
+    }
+
+    if (actual == NULL)
+    {
+        printf("Tarea no encontrada.\n");
+        return;
+    }
+
+    if (anterior == NULL)
+    {
+        *pendientes = actual->Siguiente;
+    }
+    else
+    {
+        anterior->Siguiente = actual->Siguiente;
+    }
+
+    actual->Siguiente = *realizadas;
+    *realizadas = actual;
+
+    printf("Tarea %d marcada como realizada.\n", id);
+}
+
 float CostoTotalDeUnProducto(Producto p)
 {
     return p.Cantidad * p.PrecioUnitario;
@@ -81,21 +112,42 @@ int main()
     srand(time(NULL));
     int idActual = 1000;
     Nodo *pendientes = crearListaVacia();
+    Nodo *realizadas = crearListaVacia();
     int opcion;
 
     do
     {
         printf("\nMenu:\n");
         printf("1. Agregar tarea\n");
+        printf("2. Ver tareas pendientes\n");
+        printf("3. Ver tareas realizadas\n");
+        printf("4. Marcar tarea como realizada\n");
         printf("0. Salir\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
+        fflush(stdin);
 
         switch (opcion)
         {
         case 1:
-            AgregarTarea(&pendientes, &idActual);
+            AgregarTarea(&pendientes, &idActual); // Agregar tarea
             break;
+        case 2:
+            printf("Tareas pendientes:\n");
+            MostrarLista(pendientes); // Mostrar pendientes
+            break;
+        case 3:
+            printf("Tareas realizadas:\n");
+            MostrarLista(realizadas); // Mostrar realizadas
+            break;
+        case 4:
+        {
+            int id;
+            printf("Ingrese el ID de la tarea a marcar como realizada: ");
+            scanf("%d", &id);
+            MarcarTareaComoRealizada(&pendientes, &realizadas, id); // Transferir tarea
+            break;
+        }
         case 0:
             printf("Saliendo...\n");
             break;
@@ -105,11 +157,20 @@ int main()
         }
     } while (opcion != 0);
 
+    // Liberar memoria
     Nodo *aux;
     while (pendientes != NULL)
     {
         aux = pendientes;
         pendientes = pendientes->Siguiente;
+        free(aux->T.Descripcion);
+        free(aux);
+    }
+
+    while (realizadas != NULL)
+    {
+        aux = realizadas;
+        realizadas = realizadas->Siguiente;
         free(aux->T.Descripcion);
         free(aux);
     }
